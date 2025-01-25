@@ -1,11 +1,12 @@
 // imports:
 import java.util.*;
 
+@SuppressWarnings("rawtypes")
 public class Main {
 
-    // arrays to store player and cpu moves
-    static ArrayList<Integer> playerPositions = new ArrayList<Integer>();
-    static ArrayList<Integer> cpuPositions = new ArrayList<Integer>();
+    // array lists to store player and cpu moves
+    static ArrayList<Integer> playerPositions = new ArrayList<>();
+    static ArrayList<Integer> cpuPositions = new ArrayList<>();
 
     public static void main(String[] args) {
 
@@ -25,7 +26,7 @@ public class Main {
                 {'-', '+', '-', '+', '-'},
                 {'7', '|', '8', '|', '9'}
         };
-        // Instructions
+        // Game instructions
         System.out.println();
         System.out.println("Welcome to Tic Tac Toe!");
         printGameBoard(boardInstructions);
@@ -75,7 +76,7 @@ public class Main {
     }
 
     public static void printGameBoard(char [] [] gameBoard) {
-        // print character by character row by row
+        // print gameBoard character by character, row by row
         for (char[] row : gameBoard) {
             for (char cell : row) {
                 System.out.print(cell);
@@ -86,11 +87,10 @@ public class Main {
 
     public static void placePiece(char [] [] gameBoard, int pos, String user) {
 
-        // default character set to x, chooses correct symbol based on player type
-        // and adds position played to array of played positions
+        // Default character set to x, chooses correct symbol based on player type
+        // Adds position played to array of played positions
         char symbol = 'x';
         if(user.equals("player")) {
-            symbol = 'x';
             playerPositions.add(pos);
         } else if(user.equals("cpu")) {
             symbol = 'o';
@@ -131,9 +131,28 @@ public class Main {
         }
     }
 
+    @SuppressWarnings("SuspiciousMethodCalls")
     public static String checkWinner() {
 
         // List of all possible winning combinations for symbol positions
+        List<List> winning = getLists();
+
+        // Loops through to check if any winning condition is met
+        for(List l : winning)
+            if (playerPositions.containsAll(l)) {
+                return "Congratulations you won!!!";
+            } else if (cpuPositions.contains(l)) {
+                return "CPU wins, sorry :(";
+                // checks number of elements on board to see if board is full
+            } else if (playerPositions.size() + cpuPositions.size() == 9) {
+                return "It's a tie";
+            }
+
+        return "";
+    }
+
+    private static List<List> getLists() {
+        // Lists of all winning position combinations
         List topRow = Arrays.asList(1, 2, 3);
         List midRow = Arrays.asList(4, 5, 6);
         List botRow = Arrays.asList(7, 8, 9);
@@ -143,8 +162,8 @@ public class Main {
         List cross1 = Arrays.asList(1, 5, 9);
         List cross2 = Arrays.asList(7, 5, 3);
 
-        List<List> winning = new ArrayList<List>();
-        // creates a list of lists containing all winning conditions
+        // Creates a list of lists containing all winning conditions
+        List<List> winning = new ArrayList<>();
         winning.add(topRow);
         winning.add(midRow);
         winning.add(botRow);
@@ -153,19 +172,6 @@ public class Main {
         winning.add(rightCol);
         winning.add(cross1);
         winning.add(cross2);
-
-        for(List l : winning) {
-            // loops through to check if any winning condition is met
-            if(playerPositions.containsAll(l)) {
-                return "Congratulations you won!!!";
-            } else if(cpuPositions.contains(l)) {
-                return "CPU wins, sorry :(";
-            // checks number of elements on board to see if board is full
-            } else if(playerPositions.size() + cpuPositions.size() == 9) {
-                return "It's a tie";
-            }
-        }
-
-        return "";
+        return winning;
     }
 }
