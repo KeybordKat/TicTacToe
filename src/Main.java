@@ -1,8 +1,14 @@
 // imports:
-import java.util.Scanner;
+import java.util.*;
 
 public class Main {
+
+    // arrays to store player and cpu moves
+    static ArrayList<Integer> playerPositions = new ArrayList<Integer>();
+    static ArrayList<Integer> cpuPositions = new ArrayList<Integer>();
+
     public static void main(String[] args) {
+
         // 5 elements in each row in array, 3 for x and o's, 2 for separating lines
         char[][] gameBoard = {
                 {' ', '|', ' ', '|', ' '},
@@ -29,13 +35,43 @@ public class Main {
                 according to the chart above.
                 """);
         printGameBoard(gameBoard);
-        Scanner sc = new Scanner(System.in);
-        System.out.println("Enter your placement: ");
-        int pos = sc.nextInt();
-        // print position for testing purposes
-        System.out.println(pos);
 
+        while(true) {
+            Scanner sc = new Scanner(System.in);
 
+            // places symbol based on player input
+            System.out.println("Enter your placement: ");
+            int playerPos = sc.nextInt();
+            while(playerPositions.contains(playerPos) || cpuPositions.contains(playerPos)) {
+                System.out.println("Position taken! Enter a correct position");
+                playerPos = sc.nextInt();
+            }
+            placePiece(gameBoard, playerPos, "player");
+
+            // if empty string returned, game is over
+            String result = checkWinner();
+            if(result.length() > 0) {
+                System.out.println(result);
+                break;
+            }
+
+            // places symbol for computer randomly
+            Random rand = new Random();
+            int cpuPos = rand.nextInt(9) + 1;
+            while(playerPositions.contains(cpuPos) || cpuPositions.contains(cpuPos)) {
+                cpuPos = rand.nextInt(9) + 1;
+            }
+            placePiece(gameBoard, cpuPos, "cpu");
+
+            printGameBoard(gameBoard);
+
+            // if empty string returned, game is over
+            result = checkWinner();
+            if(result.length() > 0) {
+                System.out.println(result);
+                break;
+            }
+        }
     }
 
     public static void printGameBoard(char [] [] gameBoard) {
@@ -50,12 +86,15 @@ public class Main {
 
     public static void placePiece(char [] [] gameBoard, int pos, String user) {
 
-        // default character set to x
+        // default character set to x, chooses correct symbol based on player type
+        // and adds position played to array of played positions
         char symbol = 'x';
         if(user.equals("player")) {
             symbol = 'x';
+            playerPositions.add(pos);
         } else if(user.equals("cpu")) {
             symbol = 'o';
+            cpuPositions.add(pos);
         }
         // places x or o based on given position
         switch(pos) {
@@ -86,8 +125,47 @@ public class Main {
             case 9:
                 gameBoard[4][4] = symbol;
                 break;
+
+                default:
+                    break;
+        }
+    }
+
+    public static String checkWinner() {
+
+        // List of all possible winning combinations for symbol positions
+        List topRow = Arrays.asList(1, 2, 3);
+        List midRow = Arrays.asList(4, 5, 6);
+        List botRow = Arrays.asList(7, 8, 9);
+        List leftCol = Arrays.asList(1, 4, 7);
+        List midCol = Arrays.asList(2, 5, 8);
+        List rightCol = Arrays.asList(3, 6, 9);
+        List cross1 = Arrays.asList(1, 5, 9);
+        List cross2 = Arrays.asList(7, 5, 3);
+
+        List<List> winning = new ArrayList<List>();
+        // creates a list of lists containing all winning conditions
+        winning.add(topRow);
+        winning.add(midRow);
+        winning.add(botRow);
+        winning.add(leftCol);
+        winning.add(midCol);
+        winning.add(rightCol);
+        winning.add(cross1);
+        winning.add(cross2);
+
+        for(List l : winning) {
+            // loops through to check if any winning condition is met
+            if(playerPositions.containsAll(l)) {
+                return "Congratulations you won!!!";
+            } else if(cpuPositions.contains(l)) {
+                return "CPU wins, sorry :(";
+            // checks number of elements on board to see if board is full
+            } else if(playerPositions.size() + cpuPositions.size() == 9) {
+                return "It's a tie";
+            }
         }
 
-        printGameBoard(gameBoard);
+        return "";
     }
 }
